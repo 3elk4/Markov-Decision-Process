@@ -23,7 +23,7 @@ public:
 	virtual void init_transition_probs_and_rewards(const list<S> &) = 0;
 	virtual step_details<S> step(const A &, const S &) = 0;
 
-	virtual list<S> get_all_states() final {
+	list<S> get_all_states() {
 		list<S> temp;
 		for (auto const& imap : this->transition_probs) {
 			temp.push_back(imap.first);
@@ -31,7 +31,7 @@ public:
 		return temp;
 	}
 
-	virtual list<A> get_possible_actions(const S &p) final {
+	list<A> get_possible_actions(const S &p) {
 		list<A> temp;
 		auto state = transition_probs[p];
 		for (auto const& mapi : state) {
@@ -40,35 +40,25 @@ public:
 		return temp;
 	}
 
-	virtual map<S, double> get_next_states(const S &s, const A &a) final {
-		try {
-			this->transition_probs.at(s).at(a);
+	map<S, double> get_next_states(const S &s, const A &a) {
+		if (this->transition_probs.count(s) > 0 && this->transition_probs.at(s).count(a) > 0) {
+			return this->transition_probs.at(s).at(a);
 		}
-		catch (const out_of_range &oor) {
-			//TODO: tutaj coœ informuj¹cego, ¿e nastepny krok to wejœcie na scianê
-			return map<S, double>(); // empty
-		}
-		return this->transition_probs.at(s).at(a);
+		return map<S, double>(); // empty
 	}
 
-	virtual double get_transition_prob(const S &s1, const A &a, const S &s2) final {
-		try {
-			this->transition_probs.at(s1).at(a).at(s2);
+	double get_transition_prob(const S &s1, const A &a, const S &s2) {
+		if (this->transition_probs.count(s1) > 0 && this->transition_probs.at(s1).count(a) > 0 && this->transition_probs.at(s1).at(a).count(s2) > 0) {
+			return this->transition_probs.at(s1).at(a).at(s2);
 		}
-		catch (const out_of_range &oor) {
-			return INT_MIN;
-		}
-		return this->transition_probs[s1][a][s2];
+		return INT_MIN;
 	}
 
 	virtual double get_reward(const S &s1, const A &a, const S &s2) {
-		try {
-			this->rewards.at(s1).at(a).at(s2);
+		if (this->rewards.count(s1) > 0 && this->rewards.at(s1).count(a) > 0 && this->rewards.at(s1).at(a).count(s2) > 0) {
+			return this->rewards.at(s1).at(a).at(s2);
 		}
-		catch (const out_of_range &oor) {
-			return INT_MIN;
-		}
-		return this->rewards[s1][a][s2];
+		return INT_MIN;
 	}
 
 protected:
